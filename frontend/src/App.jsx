@@ -1,35 +1,39 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+// App.jsx
+import { useState, useEffect } from "react";
+import UploadForm from "./components/UploadForm";
+import DocumentList from "./components/DocumentList";
 
-function App() {
-  const [count, setCount] = useState(0)
+const App = () => {
+  const [documents, setDocuments] = useState([]);
+
+  const fetchDocuments = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/documents");
+      const data = await response.json();
+      setDocuments(data);
+    } catch (error) {
+      console.error("Failed to fetch documents:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchDocuments();
+  }, []);
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
+    <div className="min-h-screen bg-blue-50 p-6">
+      <header className="text-center mb-8">
+        <h1 className="text-3xl font-extrabold text-blue-800 mb-2">
+          Healthcare Patient Portal
+        </h1>
+        <p className="text-gray-600">
+          Securely upload, view, and manage your medical documents
         </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+      </header>
+      <UploadForm onUploadSuccess={fetchDocuments} />
+      <DocumentList documents={documents} />
+    </div>
+  );
+};
 
-export default App
+export default App;
