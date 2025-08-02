@@ -48,14 +48,21 @@ exports.getAllDocuments = async (req, res) => {
 };
 
 
+
 exports.downloadDocument = async (req, res) => {
   try {
     const doc = await Document.findById(req.params.id);
     if (!doc) return res.status(404).json({ error: 'File not found' });
 
     const filePath = path.join(uploadDir, doc.filepath);
+
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ error: 'File not found on server' });
+    }
+
     res.download(filePath, doc.filename);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: 'Download failed' });
   }
 };

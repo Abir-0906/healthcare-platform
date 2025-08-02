@@ -1,62 +1,68 @@
-import { useState } from "react";
-import Button from "./Button";
+import React, { useState } from 'react';
 
-const UploadForm = ({ onUploadSuccess }) => {
+const UploadForm = ({ onUpload }) => {
   const [file, setFile] = useState(null);
-  const [message, setMessage] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
-    setMessage("");
+    if (e.target.files[0]) {
+      setFile(e.target.files[0]);
+    }
   };
 
-  const handleUpload = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!file) {
-      setMessage("⚠️ Please select a PDF file.");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("file", file);
-
+    if (!file) return;
+    
+    setIsUploading(true);
     try {
-      const response = await fetch("http://localhost:5000/documents/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error("Upload failed");
-      }
-
-      setMessage("✅ File uploaded successfully!");
+      await onUpload(file);
       setFile(null);
-      onUploadSuccess();
-    } catch (error) {
-      console.error(error);
-      setMessage("❌ Failed to upload file.");
+      e.target.reset();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsUploading(false);
     }
   };
 
   return (
-    <div className="max-w-xl mx-auto p-6 sm:p-8 bg-white shadow-md rounded-lg border border-blue-100">
-      <h2 className="text-xl sm:text-2xl font-semibold mb-4 text-blue-700 text-center">
-        Upload Your Medical Document (PDF)
-      </h2>
-      <form onSubmit={handleUpload} className="space-y-4">
-        <input
-          type="file"
-          accept="application/pdf"
-          onChange={handleFileChange}
-          className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
-        />
-        <Button type="submit" className="w-full sm:w-auto">Upload</Button>
+   // Change from bg-white to bg-blue-100 (slightly darker than main background)
+<div className="bg-blue-100 shadow rounded-lg p-6 mb-8">
+      <h2 className="text-xl font-semibold text-gray-800 mb-4">Upload Medical Document</h2>
+      <form onSubmit={handleSubmit}>
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-2">PDF File</label>
+          <div className="flex items-center">
+            <label
+              htmlFor="file-upload"
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 cursor-pointer"
+            >
+              Choose File
+            </label>
+            <input
+              id="file-upload"
+              type="file"
+              accept="application/pdf"
+              onChange={handleFileChange}
+              required
+              className="hidden"
+            />
+            {file && (
+              <span className="ml-4 text-sm text-gray-600 truncate max-w-xs">
+                {file.name}
+              </span>
+            )}
+          </div>
+        </div>
+        <button
+          type="submit"
+          disabled={!file || isUploading}
+          className={`w-full py-2 px-4 rounded-md text-white ${(!file || isUploading) ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'}`}
+        >
+          {isUploading ? 'Uploading...' : 'Upload Document'}
+        </button>
       </form>
-      {message && (
-        <p className="mt-4 text-center text-sm text-gray-700">{message}</p>
-      )}
     </div>
   );
 };
