@@ -52,20 +52,26 @@ exports.getAllDocuments = async (req, res) => {
 exports.downloadDocument = async (req, res) => {
   try {
     const doc = await Document.findById(req.params.id);
-    if (!doc) return res.status(404).json({ error: 'File not found' });
-
-    const filePath = path.join(uploadDir, doc.filepath);
-
-    if (!fs.existsSync(filePath)) {
-      return res.status(404).json({ error: 'File not found on server' });
+    if (!doc) {
+      return res.status(404).json({ error: 'Document not found' });
     }
 
+    const filePath = path.join(__dirname, '..', 'uploads', doc.filepath);
+
+    // ✅ Manually set CORS headers for download
+    res.set({
+      'Access-Control-Allow-Origin': 'http://localhost:5173',
+      'Access-Control-Allow-Credentials': 'true',
+      'Access-Control-Expose-Headers': 'Content-Disposition' // allow filename visibility
+    });
+
     res.download(filePath, doc.filename);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Download failed' });
+  } catch (error) {
+    console.error('Download error:', error);
+    res.status(500).json({ error: 'Server error during download' });
   }
 };
+
 
 exports.deleteDocument = async (req, res) => {
   try {
