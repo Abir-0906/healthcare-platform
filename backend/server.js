@@ -11,13 +11,13 @@ const PORT = process.env.PORT || 5000;
 
 connectDB();              // Connect to MongoDB
 
+
 app.use(cors({
-  origin: ['http://localhost:5173'],
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  exposedHeaders: ['Content-Disposition'] // ✅ Allow this header to be readable in JS
+  origin: 'http://localhost:5173', // Allow Vite React frontend
+  credentials: true,              // Allow cookies/headers if needed
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 }));
+
 
 
 

@@ -10,7 +10,7 @@ import { formatBytes, formatDate } from './utils/helpers';
 axios.defaults.withCredentials = true;
 
 // Set base URL
-const API_BASE_URL = 'https://healthcare-platform-1-eel2.onrender.com';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL; // Adjust this to your backend API URL
 axios.defaults.baseURL = API_BASE_URL;
 
 
